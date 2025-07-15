@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TechFi24 Articles</title>
+    <title>TechFi24 Articles - Data Engineering Pipeline</title>
     <!-- Bootstrap CSS -->
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"
@@ -72,6 +72,70 @@
         color: white;
         border-radius: 15px;
       }
+      .tech-badge {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        margin: 0.2rem;
+        display: inline-block;
+        transition: transform 0.2s ease;
+      }
+      .tech-badge:hover {
+        transform: scale(1.05);
+      }
+      .project-description {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+      }
+      .architecture-card {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 20px;
+        backdrop-filter: blur(10px);
+      }
+      .feature-icon {
+        font-size: 2rem;
+        color: #ffd700;
+        margin-bottom: 15px;
+      }
+      .pipeline-flow {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-top: 20px;
+      }
+      .pipeline-step {
+        flex: 1;
+        min-width: 200px;
+        text-align: center;
+        padding: 15px;
+        margin: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      .pipeline-arrow {
+        font-size: 1.5rem;
+        color: #ffd700;
+        margin: 0 10px;
+      }
+      @media (max-width: 768px) {
+        .pipeline-flow {
+          flex-direction: column;
+        }
+        .pipeline-arrow {
+          transform: rotate(90deg);
+        }
+      }
     </style>
   </head>
   <body>
@@ -125,15 +189,43 @@
     </nav>
 
     <div class="container mt-4">
+      <!-- Project Description Section -->
+      <div class="project-description">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <div class="architecture-card text-center">
+              <img
+                src="static/archi.png"
+                alt="Pipeline Overview"
+                class="img-fluid rounded"
+                style="max-height: 150px"
+              />
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="architecture-card text-center">
+              <img
+                src="static/description.png"
+                alt="Architecture Diagram"
+                class="img-fluid rounded"
+                style="max-height: 150px"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Stats Card -->
       <div class="row mb-4">
         <div class="col-md-12">
           <div class="card stats-card">
             <div class="card-body text-center">
               <h3 class="card-title mb-0">
-                <i class="bi bi-files"></i> {{ total_count }} Articles
+                <i class="bi bi-files"></i> {{ total_count }} Articles Processed
               </h3>
-              <p class="card-text">Latest tech and finance updates</p>
+              <p class="card-text">
+                Latest tech and finance updates from automated pipeline
+              </p>
             </div>
           </div>
         </div>
@@ -276,8 +368,13 @@
     <footer class="mt-5 py-4 bg-light">
       <div class="container text-center">
         <p class="text-muted mb-0">
-          <i class="bi bi-code-slash"></i> TechFi24 Articles Dashboard
+          <i class="bi bi-code-slash"></i> TechFi24 Articles Dashboard -
+          <strong>Data Engineering Pipeline Project</strong>
         </p>
+        <small class="text-muted">
+          Automated news aggregation system powered by GCP, PostgreSQL, and
+          Telegram API
+        </small>
       </div>
     </footer>
 
