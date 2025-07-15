@@ -1,4 +1,4 @@
-from telethon import TelegramClient
+from telethon.sync import TelegramClient
 from telethon.sessions import StringSession
 import os
 from dotenv import load_dotenv
@@ -35,18 +35,13 @@ def parse_message_content(text):
    
     return title, url
 
-async def scrape_messages_async():
-    """Async version of scrape_and_store_messages"""
+def scrape_and_store_messages():
     # Get environment variables
     api_id = os.getenv('API_ID')
     api_hash = os.getenv('API_HASH')
     channel_username = os.getenv('CHANNEL_USERNAME')
     session_string = os.getenv('SESSION_STRING')
     
-    print(f"API_ID: {api_id}")
-    print(f"API_HASH: {api_hash[:10] + '...' if api_hash else 'None'}")
-    print(f"CHANNEL_USERNAME: {channel_username}")
-    print(f"SESSION_STRING: {'Present' if session_string else 'Missing'}")
     
     # Validate environment variables
     if not api_id:
@@ -65,64 +60,52 @@ async def scrape_messages_async():
         raise ValueError(f"API_ID must be a number, got: {api_id}")
     
     try:
-        print(f"Creating async Telegram client...")
-        
-        # Create async client with session string
+
+        # Create client with pre-generated session string
         client = TelegramClient(StringSession(session_string), api_id, api_hash)
         
-        await client.start()
-        print("Successfully connected to Telegram!")
-        
-        # Verify we can access the channel
-        try:
-            entity = await client.get_entity(channel_username)
-            print(f"Found channel: {entity.title}")
-        except Exception as e:
-            print(f"Error getting channel entity: {e}")
-            # Try with @ prefix if not already there
-            if not channel_username.startswith('@'):
-                channel_username = '@' + channel_username
-                print(f"Trying with @ prefix: {channel_username}")
-                entity = await client.get_entity(channel_username)
-                print(f"Found channel: {entity.title}")
-            else:
-                raise
-        
-        message_count = 0
-        async for message in client.iter_messages(channel_username, limit=20):
-            if message.text:  # Only process messages with text
-                message_count += 1
-                title, url = parse_message_content(message.text)
-               
-                # Create message object
-                message_data = {
-                    "telegram_id": message.id,
-                    "title": title,
-                    "url": url,
-                    "published_at": message.date
-                }
-               
-                try:
-                    insert_message(message_data)
-                    print(f"Successfully inserted message {message.id}: {title}")
-                except Exception as e:
-                    print(f"Failed to insert message {message.id}: {e}")
-               
-                print("-" * 50)
-        
-        print(f"Successfully processed {message_count} messages")
-        
-        await client.disconnect()
-        
+        with client:
+
+            # Verify accessing the channel
+            try:
+                entity = client.get_entity(channel_username)
+            except Exception as e:
+                print(f"Error getting channel entity: {e}")
+                # Try with @ prefix if not already there
+                if not channel_username.startswith('@'):
+                    channel_username = '@' + channel_username
+                    print(f"Trying with @ prefix: {channel_username}")
+                    entity = client.get_entity(channel_username)
+                    print(f"Found channel: {entity.title}")
+                else:
+                    raise
+            
+            message_count = 0
+            for message in client.iter_messages(channel_username, limit=20):
+                if message.text:  # Only process messages with text
+                    message_count += 1
+                    title, url = parse_message_content(message.text)
+                   
+                    # Create message object
+                    message_data = {
+                        "telegram_id": message.id,
+                        "title": title,
+                        "url": url,
+                        "published_at": message.date
+                    }
+                   
+                    try:
+                        insert_message(message_data)
+                        print(f"Successfully inserted message {message.id}: {title}")
+                    except Exception as e:
+                        print(f"Failed to insert message {message.id}: {e}")
+                   
+                    print("-" * 50)
+    
     except Exception as e:
-        print(f"Error in scrape_messages_async: {e}")
+        print(f"Error in scrape_and_store_messages: {e}")
         print(f"Error type: {type(e).__name__}")
         raise
-
-# Simple sync wrapper for standalone usage
-def scrape_and_store_messages():
-    """Simple sync wrapper - only for standalone usage"""
-    return asyncio.run(scrape_messages_async())
 
 if __name__ == "__main__":
     scrape_and_store_messages()
