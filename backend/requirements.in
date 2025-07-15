@@ -1,0 +1,6 @@
+telethon
+flask
+numpy
+psycopg2-binary
+networkx<3.5
+python-dotenv
