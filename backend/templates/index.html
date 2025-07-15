@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TechFi24 Articles</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .article-card {
+        transition: transform 0.2s ease-in-out;
+        border: 1px solid #e0e0e0;
+      }
+      .article-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      .article-title {
+        color: #333;
+        text-decoration: none;
+      }
+      .article-title:hover {
+        color: #007bff;
+        text-decoration: none;
+      }
+      .badge-date {
+        background-color: #f8f9fa;
+        color: #6c757d;
+        border: 1px solid #dee2e6;
+      }
+      .header-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+      .search-container {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 30px;
+      }
+      .scrape-btn {
+        background: linear-gradient(45deg, #28a745, #20c997);
+        border: none;
+        transition: all 0.3s ease;
+      }
+      .scrape-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+      }
+      .pagination .page-link {
+        color: #667eea;
+        border-color: #dee2e6;
+      }
+      .pagination .page-item.active .page-link {
+        background-color: #667eea;
+        border-color: #667eea;
+      }
+      .no-articles {
+        text-align: center;
+        color: #6c757d;
+        padding: 60px 0;
+      }
+      .stats-card {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        border-radius: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark header-gradient">
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="/">
+          <i class="bi bi-newspaper"></i> TechFi24 Articles
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <button
+                class="btn btn-success scrape-btn"
+                onclick="triggerScrape()"
+              >
+                <i class="bi bi-arrow-clockwise"></i> Scrape New Articles
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mt-4">
+      <!-- Stats Card -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <div class="card stats-card">
+            <div class="card-body text-center">
+              <h3 class="card-title mb-0">
+                <i class="bi bi-files"></i> {{ total_count }} Articles
+              </h3>
+              <p class="card-text">Latest tech and finance updates</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search Section -->
+      <div class="search-container">
+        <form method="GET" action="/" class="row g-3">
+          <div class="col-md-10">
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-search"></i></span>
+              <input
+                type="text"
+                class="form-control"
+                name="search"
+                placeholder="Search articles by title or URL..."
+                value="{{ search_query }}"
+              />
+            </div>
+          </div>
+          <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">
+              <i class="bi bi-search"></i> Search
+            </button>
+          </div>
+        </form>
+        {% if search_query %}
+        <div class="mt-3">
+          <span class="badge bg-info">Searching for: "{{ search_query }}"</span>
+          <a href="/" class="btn btn-sm btn-outline-secondary ms-2">
+            <i class="bi bi-x"></i> Clear
+          </a>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Articles Grid -->
+      {% if articles %}
+      <div class="row">
+        {% for article in articles %}
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card article-card h-100">
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">
+                {% if article.url %}
+                <a
+                  href="{{ article.url }}"
+                  target="_blank"
+                  class="article-title"
+                >
+                  {{ article.title }}
+                  <i
+                    class="bi bi-box-arrow-up-right ms-1"
+                    style="font-size: 0.8em"
+                  ></i>
+                </a>
+                {% else %}
+                <span class="article-title">{{ article.title }}</span>
+                {% endif %}
+              </h5>
+
+              <div class="mt-auto">
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="badge badge-date">
+                    <i class="bi bi-calendar3"></i>
+                    {{ article.published_at.strftime('%Y-%m-%d %H:%M') }}
+                  </span>
+                  <small class="text-muted">
+                    ID: {{ article.telegram_id }}
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Pagination -->
+      {% if total_pages > 1 %}
+      <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+          {% if has_prev %}
+          <li class="page-item">
+            <a
+              class="page-link"
+              href="?page={{ page - 1 }}{% if search_query %}&search={{ search_query }}{% endif %}"
+            >
+              <i class="bi bi-chevron-left"></i> Previous
+            </a>
+          </li>
+          {% endif %} {% for p in range(1, total_pages + 1) %} {% if p == page
+          %}
+          <li class="page-item active">
+            <span class="page-link">{{ p }}</span>
+          </li>
+          {% elif p <= 3 or p >= total_pages - 2 or (p >= page - 2 and p <= page
+          + 2) %}
+          <li class="page-item">
+            <a
+              class="page-link"
+              href="?page={{ p }}{% if search_query %}&search={{ search_query }}{% endif %}"
+              >{{ p }}</a
+            >
+          </li>
+          {% elif p == 4 or p == total_pages - 3 %}
+          <li class="page-item disabled">
+            <span class="page-link">...</span>
+          </li>
+          {% endif %} {% endfor %} {% if has_next %}
+          <li class="page-item">
+            <a
+              class="page-link"
+              href="?page={{ page + 1 }}{% if search_query %}&search={{ search_query }}{% endif %}"
+            >
+              Next <i class="bi bi-chevron-right"></i>
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+      {% endif %} {% else %}
+      <div class="no-articles">
+        <i class="bi bi-inbox" style="font-size: 4rem; color: #dee2e6"></i>
+        <h3 class="mt-3">No Articles Found</h3>
+        {% if search_query %}
+        <p>No articles match your search criteria.</p>
+        <a href="/" class="btn btn-primary">View All Articles</a>
+        {% else %}
+        <p>No articles available. Try scraping some articles first.</p>
+        <button class="btn btn-success" onclick="triggerScrape()">
+          <i class="bi bi-arrow-clockwise"></i> Scrape Articles
+        </button>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-5 py-4 bg-light">
+      <div class="container text-center">
+        <p class="text-muted mb-0">
+          <i class="bi bi-code-slash"></i> TechFi24 Articles Dashboard
+        </p>
+      </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Loading Modal -->
+    <div
+      class="modal fade"
+      id="loadingModal"
+      tabindex="-1"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-body text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3 mb-0">Scraping articles... Please wait</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function triggerScrape() {
+        // Show loading modal
+        const modal = new bootstrap.Modal(
+          document.getElementById('loadingModal')
+        );
+        modal.show();
+
+        fetch('/scrape', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            modal.hide();
+            if (data.status === 'success') {
+              alert('Articles scraped successfully!');
+              window.location.reload();
+            } else {
+              alert('Error: ' + data.message);
+            }
+          })
+          .catch((error) => {
+            modal.hide();
+            console.error('Error:', error);
+            alert('An error occurred while scraping articles.');
+          });
+      }
+    </script>
+  </body>
+</html>
